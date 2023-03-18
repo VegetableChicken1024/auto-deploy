@@ -10,6 +10,7 @@ import { extname, join } from "path";
 import inquirer from "inquirer";
 import { IConfig } from "../types";
 import { parse, stringify } from "yaml";
+import { encrypt, decrypt } from "../utils/cryptoUtil";
 
 // 查找./config目录下的所有配置文件
 const searchConfigFiles = () => {
@@ -98,10 +99,15 @@ export const getSshConfig = async (): Promise<IConfig> => {
       `${answer.configFile}.yaml`
     );
     const config = parse(readFileSync(configPath, "utf-8"));
-    return config;
+    return {
+      ...config,
+      password: decrypt(config.password),
+    };
   } else {
     // 使用已有的配置文件，但是没有选择配置文件
     // 或者没有使用已有的配置文件
+    // 对配置信息进行对称加密
+
     const config = {
       host: answer.host,
       username: answer.username,
@@ -115,8 +121,14 @@ export const getSshConfig = async (): Promise<IConfig> => {
         "config",
         `${answer.configName}.yaml`
       );
-
-      writeFileSync(configPath, stringify(config));
+      // 只加密密码
+      writeFileSync(
+        configPath,
+        stringify({
+          ...config,
+          password: encrypt(config.password),
+        })
+      );
     }
     return config;
   }

@@ -30,6 +30,7 @@ console.log("7. 增加nginx配置文件自动更新功能");
 console.log("8. 增加服务器自动创建项目文件夹功能");
 console.log("9. 新增本地压缩包路径填写功能");
 console.log("10. 增加本地配置文件路径填写功能");
+console.log("11. 增加配置信息加密 [已完成]");
 const main = async () => {
   const config = await getSshConfig();
   const isRollback = await rollback(config);
