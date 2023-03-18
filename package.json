@@ -7,10 +7,11 @@
     "email": "578092215@qq.com"
   },
   "license": "MIT",
-  "main": "index.js",
-  "bin": "index.js",
+  "main": "dist/bundle.js",
+  "bin": "dist/bundle.js",
   "scripts": {
-    "build": "pkg . --targets node16-win-x64 --output deploy.exe"
+    "build:webpack": "webpack --mode production",
+    "build": "pkg . --targets node16-win-x64 --output deploy.exe --assets ./dist/**/* --exclude devDependencies"
   },
   "pkg": {
     "assets": [
@@ -22,5 +23,16 @@
     "node-ssh": "^13.0.1",
     "winston": "^3.8.2",
     "yaml": "^2.2.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.20.2",
+    "@types/inquirer": "^9.0.3",
+    "babel-loader": "^9.1.2",
+    "node-loader": "^2.0.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.2",
+    "webpack": "^5.76.2",
+    "webpack-cli": "^5.0.1",
+    "webpack-obfuscator": "^3.5.1"
   }
 }

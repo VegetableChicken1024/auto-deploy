@@ -3,3 +3,5 @@ package-lock.json
 
 dist
 deploy.log
+deploy.exe
+default.yaml
