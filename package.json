@@ -11,12 +11,16 @@
   "bin": "dist/bundle.js",
   "scripts": {
     "build:webpack": "webpack --mode production",
-    "build": "pkg . --targets node16-win-x64 --output deploy.exe --assets ./dist/**/* --exclude devDependencies"
+    "build": "pkg . --compress GZip"
   },
   "pkg": {
     "assets": [
-      "**/*"
-    ]
+      "./dist/**/*"
+    ],
+    "targets": [
+      "node16-win-x64"
+    ],
+    "author": "huangbh"
   },
   "dependencies": {
     "inquirer": "^8.2.5",

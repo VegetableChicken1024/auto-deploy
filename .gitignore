@@ -3,5 +3,5 @@ package-lock.json
 
 dist
 deploy.log
-deploy.exe
+auto-deploy.exe
 default.yaml
