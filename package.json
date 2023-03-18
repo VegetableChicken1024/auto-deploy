@@ -1,0 +1,26 @@
+{
+  "name": "auto-deploy",
+  "version": "1.0.0",
+  "description": "用于自动化部署前端项目",
+  "author": {
+    "name": "huangbh",
+    "email": "578092215@qq.com"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "build": "pkg . --targets node16-win-x64 --output deploy.exe"
+  },
+  "pkg": {
+    "assets": [
+      "**/*"
+    ]
+  },
+  "dependencies": {
+    "inquirer": "^8.2.5",
+    "node-ssh": "^13.0.1",
+    "winston": "^3.8.2",
+    "yaml": "^2.2.1"
+  }
+}
