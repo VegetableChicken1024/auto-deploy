@@ -45,16 +45,27 @@ export const searchProjectFolders = async (
   }
 };
 
-export const getSSHConfig = (
-  defaultConfig: Partial<IConfig>,
-  answers: { [key: string]: any }
-) => {
-  return {
-    host: defaultConfig?.host || answers.host,
-    username: defaultConfig?.username || answers.username,
-    password: defaultConfig?.password || answers.password,
-    port: defaultConfig?.port || answers.port,
-  };
+export const searchZipFiles = async (ssh: NodeSSH, selectedFolder: string) => {
+  try {
+    const command = `find ${selectedFolder} -type f -name "*.zip"`;
+    const { stdout } = await ssh.execCommand(command);
+    if (!stdout) {
+      console.log(
+        "未搜索到历史版本，请检查项目路径是否正确，程序将在3秒后退出"
+      );
+      logger.info(
+        "未搜索到历史版本，请检查项目路径是否正确，程序将在3秒后退出"
+      );
+      setTimeout(() => {
+        process.exit(0);
+      }, 3000);
+    }
+    ssh.dispose();
+    return stdout?.split("\n").filter((file) => file);
+  } catch (error) {
+    console.log("搜索历史版本出现错误：", error);
+    logger.error("搜索历史版本出现错误：", error);
+  }
 };
 
 export const confirmAndExecute = async (
@@ -67,8 +78,8 @@ export const confirmAndExecute = async (
     const zipFile =
       action === "rollback" ? answers.rollbackZipFile : answers.localZipFile;
     const projectFolder = answers.projectFolder;
-    console.log(`${actionName}版本`, zipFile);
-    logger.info(`${actionName}版本`, zipFile);
+    console.log(`${actionName}版本`, zipFile.split("/").pop());
+    logger.info(`${actionName}版本`, zipFile.split("/").pop());
     const confirmPrompt = await inquirer.prompt([
       {
         type: "confirm",
@@ -82,7 +93,7 @@ export const confirmAndExecute = async (
       logger.info(`开始${actionName}`);
       if (action === "deploy") {
         await ssh.putFile(
-          resolve(process.cwd(), zipFile),
+          resolve(process.cwd(), "packages", zipFile),
           `${projectFolder}/${zipFile}`
         );
       }

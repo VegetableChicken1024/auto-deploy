@@ -4,4 +4,5 @@ package-lock.json
 dist
 deploy.log
 auto-deploy.exe
-default.yaml
+config/*
+packages/*
