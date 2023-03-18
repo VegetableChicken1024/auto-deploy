@@ -34,7 +34,10 @@ console.log("11. 增加配置信息加密 [已完成]");
 const main = async () => {
   const config = await getSshConfig();
   const isRollback = await rollback(config);
-  !isRollback && (await deploy(config));
+  const isDeploy = !isRollback && (await deploy(config));
+  if (!isRollback && !isDeploy) {
+    console.log("未选择任何操作，程序将在3秒后退出");
+  }
   setTimeout(() => {
     process.exit(0);
   }, 3000);

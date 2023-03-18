@@ -67,4 +67,5 @@ export const deploy = async (config: IConfig) => {
     console.log("项目部署路径", answer.projectFolder);
     await confirmAndExecute(ssh!, "deploy", answer);
   }
+  return answer.deploy;
 };
