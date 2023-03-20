@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { logger } from "./logger";
 import { IConfig } from "../types";
 
-export const createSSH = async (config: IConfig) => {
+export const createSSH = async (config: Omit<IConfig, "projectFolder">) => {
   try {
     const ssh = new NodeSSH();
     await ssh.connect(config);
@@ -41,7 +41,7 @@ export const searchProjectFolders = async (
     console.log("搜索项目文件夹出现错误：", error);
     logger.error("搜索项目文件夹出现错误：", error);
   } finally {
-    ssh.dispose();
+    // ssh.dispose();
   }
 };
 
@@ -60,7 +60,7 @@ export const searchZipFiles = async (ssh: NodeSSH, selectedFolder: string) => {
         process.exit(0);
       }, 3000);
     }
-    ssh.dispose();
+    // ssh.dispose();
     return stdout?.split("\n").filter((file) => file);
   } catch (error) {
     console.log("搜索历史版本出现错误：", error);
@@ -71,13 +71,11 @@ export const searchZipFiles = async (ssh: NodeSSH, selectedFolder: string) => {
 export const confirmAndExecute = async (
   ssh: NodeSSH,
   action: "rollback" | "deploy",
-  answers: { [key: string]: any }
+  options: { zipFile: string; projectFolder: string }
 ) => {
   try {
+    const { zipFile, projectFolder } = options;
     const actionName = action === "rollback" ? "回滚" : "部署";
-    const zipFile =
-      action === "rollback" ? answers.rollbackZipFile : answers.localZipFile;
-    const projectFolder = answers.projectFolder;
     console.log(`${actionName}版本`, zipFile.split("/").pop());
     logger.info(`${actionName}版本`, zipFile.split("/").pop());
     const confirmPrompt = await inquirer.prompt([
@@ -99,8 +97,8 @@ export const confirmAndExecute = async (
       }
       const unzipCommand = `unzip -o ${zipFile} -d ${projectFolder}`;
       await ssh.execCommand(unzipCommand);
-      console.log(`${actionName}成功，请手动刷新浏览器，程序将在3秒后退出`);
-      logger.info(`${actionName}成功，请手动刷新浏览器，程序将在3秒后退出`);
+      console.log(`${actionName}成功，请手动刷新浏览器`);
+      logger.info(`${actionName}成功，请手动刷新浏览器`);
     } else {
       console.log(`${actionName}已取消`);
       logger.info(`${actionName}已取消`);
@@ -109,6 +107,6 @@ export const confirmAndExecute = async (
     console.log("执行操作出现错误：", error);
     logger.error("执行操作出现错误：", error);
   } finally {
-    ssh.dispose();
+    // ssh.dispose();
   }
 };

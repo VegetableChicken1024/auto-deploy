@@ -1,13 +1,18 @@
 // 回滚问题
 import inquirer from "inquirer";
-import { IConfig } from "../types";
+import { NodeSSH } from "node-ssh";
 import {
-  createSSH,
+  confirmAndExecute,
   searchProjectFolders,
   searchZipFiles,
-  confirmAndExecute,
 } from "../utils/ssh";
-export const rollback = async (sshConfig: IConfig) => {
+export const rollback = async (
+  ssh: NodeSSH,
+  projectFolder?: string
+): Promise<{
+  isRollback: boolean;
+  projectFolder?: string;
+}> => {
   const answer = await inquirer.prompt([
     {
       type: "confirm",
@@ -19,36 +24,39 @@ export const rollback = async (sshConfig: IConfig) => {
       type: "input",
       name: "searchProjectName",
       message: "请输入当前部署的项目名进行路径搜索：",
-      when: (answers) => answers.rollback,
+      when: (answers) => answers.rollback && !projectFolder,
     },
     {
       type: "list",
       name: "projectFolder",
       message: "请选择搜索到的项目路径：",
       choices: async (answers) => {
-        const ssh = await createSSH(sshConfig);
-        return await searchProjectFolders(ssh!, answers.searchProjectName);
+        return await searchProjectFolders(ssh, answers.searchProjectName);
       },
-      when: (answers) => answers.rollback,
+      when: (answers) => answers.rollback && !projectFolder,
     },
     {
       type: "list",
       name: "rollbackZipFile",
       message: "请选择需要回滚的版本文件",
       choices: async (answers) => {
-        const ssh = await createSSH(sshConfig);
-        return await searchZipFiles(ssh!, answers.projectFolder);
+        return await searchZipFiles(
+          ssh,
+          answers.projectFolder || projectFolder!
+        );
       },
       when: (answers) => answers.rollback,
     },
   ]);
   if (answer.rollback) {
-    console.log("服务器地址", sshConfig.host);
-    console.log("服务器端口", sshConfig.port);
-    console.log("服务器用户名", sshConfig.username);
-    console.log("项目部署路径", answer.projectFolder);
-    const ssh = await createSSH(sshConfig);
-    await confirmAndExecute(ssh!, "rollback", answer);
+    // 操作各自执行
+    await confirmAndExecute(ssh, "rollback", {
+      zipFile: answer.rollbackZipFile,
+      projectFolder: projectFolder || answer.projectFolder,
+    });
   }
-  return answer.rollback;
+  return {
+    isRollback: answer.rollback,
+    projectFolder: projectFolder || answer.projectFolder,
+  };
 };

@@ -3,4 +3,5 @@ export interface IConfig {
   port: number;
   username: string;
   password: string;
+  projectFolder: string;
 }

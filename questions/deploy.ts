@@ -1,13 +1,9 @@
 // 部署问题
 import inquirer from "inquirer";
-import { IConfig } from "../types";
 import { readdirSync } from "fs";
 import { resolve } from "path";
-import {
-  confirmAndExecute,
-  createSSH,
-  searchProjectFolders,
-} from "../utils/ssh";
+import { confirmAndExecute, searchProjectFolders } from "../utils/ssh";
+import { NodeSSH } from "node-ssh";
 const searchZipFiles = () => {
   // 读取/packages目录下的zip文件
   const packagesPath = resolve(process.cwd(), "packages");
@@ -20,7 +16,13 @@ const searchZipFiles = () => {
   }
   return zipFiles;
 };
-export const deploy = async (config: IConfig) => {
+export const deploy = async (
+  ssh: NodeSSH,
+  projectFolder?: string
+): Promise<{
+  isDeploy: boolean;
+  projectFolder?: string;
+}> => {
   const answer = await inquirer.prompt([
     {
       type: "confirm",
@@ -39,7 +41,8 @@ export const deploy = async (config: IConfig) => {
       type: "input",
       name: "searchProjectName",
       message: "请输入当前部署的项目名进行路径搜索：",
-      when: (answers) => answers.deploy && answers.localZipFile,
+      when: (answers) =>
+        answers.deploy && answers.localZipFile && !projectFolder,
       default: (answers: any) => {
         const projectNameMatch = answers.localZipFile.match(
           /^(.*?)(?:_v\d+\.\d+\.\d+_\d+)?\.zip$/
@@ -52,20 +55,23 @@ export const deploy = async (config: IConfig) => {
       name: "projectFolder",
       message: "请选择搜索到的项目路径：",
       choices: async (answers) => {
-        const ssh = await createSSH(config);
-        return await searchProjectFolders(ssh!, answers.searchProjectName);
+        return await searchProjectFolders(ssh, answers.searchProjectName);
       },
       when: (answers) =>
-        answers.deploy && answers.localZipFile && answers.searchProjectName,
+        answers.deploy &&
+        answers.localZipFile &&
+        answers.searchProjectName &&
+        !projectFolder,
     },
   ]);
   if (answer.deploy) {
-    const ssh = await createSSH(config);
-    console.log("服务器地址", config.host);
-    console.log("服务器端口", config.port);
-    console.log("服务器用户名", config.username);
-    console.log("项目部署路径", answer.projectFolder);
-    await confirmAndExecute(ssh!, "deploy", answer);
+    await confirmAndExecute(ssh, "deploy", {
+      zipFile: answer.localZipFile,
+      projectFolder: projectFolder || answer.projectFolder,
+    });
   }
-  return answer.deploy;
+  return {
+    isDeploy: answer.deploy,
+    projectFolder: projectFolder || answer.projectFolder,
+  };
 };
