@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import { IConfig } from "../types";
 
 export const getSshConfig = async (): Promise<
-  Omit<IConfig, "projectFolder">
+  Array<Omit<IConfig, "projectFolder">>
 > => {
   const answer = await inquirer.prompt([
     {
@@ -39,5 +39,5 @@ export const getSshConfig = async (): Promise<
     password: answer.password,
     port: answer.port,
   };
-  return config;
+  return [config];
 };

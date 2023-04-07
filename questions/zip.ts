@@ -17,7 +17,7 @@ export const getZipFileName = async () => {
     const last = versionArr.pop();
     versionArr.push((parseInt(last) + 1).toString());
     const newVersion = versionArr.join('.');
-    const defaultZipFileName = `${name}_${newVersion}_${dateStr}.zip`;
+    const defaultZipFileName = `${name}_${newVersion}_${dateStr}`;
     const answer = await inquirer.prompt([
         {
             type: "input",

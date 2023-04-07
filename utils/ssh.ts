@@ -69,12 +69,12 @@ export const searchZipFiles = async (ssh: NodeSSH, selectedFolder: string) => {
 };
 
 export const confirmAndExecute = async (
-  ssh: NodeSSH,
+  sshs: Array<{ ssh?: NodeSSH, projectFolder?: string }>,
   action: "rollback" | "deploy",
-  options: { zipFile: string; projectFolder: string }
+  options: { zipFile: string; packagesPath?: string }
 ) => {
   try {
-    const { zipFile, projectFolder } = options;
+    const { zipFile, packagesPath } = options;
     const actionName = action === "rollback" ? "回滚" : "部署";
     console.log(`${actionName}版本`, zipFile.split("/").pop());
     logger.info(`${actionName}版本`, zipFile.split("/").pop());
@@ -90,13 +90,22 @@ export const confirmAndExecute = async (
       console.log(`开始${actionName}`);
       logger.info(`开始${actionName}`);
       if (action === "deploy") {
-        await ssh.putFile(
-          resolve(process.cwd(), "packages", zipFile),
-          `${projectFolder}/${zipFile}`
-        );
+        for (const ssh of sshs) {
+          if (ssh.ssh && ssh.projectFolder) {
+            await ssh.ssh.putFile(
+              // TODO: 优化路径
+              resolve(process.cwd(), packagesPath!, zipFile),
+              `${ssh.projectFolder}/${zipFile}`
+            );
+          }
+        }
       }
-      const unzipCommand = `unzip -o ${zipFile} -d ${projectFolder}`;
-      await ssh.execCommand(unzipCommand);
+      for (const ssh of sshs) {
+        if (ssh.ssh) {
+          const unzipCommand = `unzip -o ${zipFile} -d ${ssh.projectFolder}`;
+          await ssh.ssh.execCommand(unzipCommand);
+        }
+      }
       console.log(`${actionName}成功，请手动刷新浏览器`);
       logger.info(`${actionName}成功，请手动刷新浏览器`);
     } else {
@@ -108,5 +117,6 @@ export const confirmAndExecute = async (
     logger.error("执行操作出现错误：", error);
   } finally {
     // ssh.dispose();
+    sshs.forEach((ssh) => ssh.ssh?.dispose())
   }
 };

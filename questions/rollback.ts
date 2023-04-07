@@ -50,9 +50,9 @@ export const rollback = async (
   ]);
   if (answer.rollback) {
     // 操作各自执行
-    await confirmAndExecute(ssh, "rollback", {
+    await confirmAndExecute([{ ssh, projectFolder: projectFolder || answer.projectFolder }], "rollback", {
       zipFile: answer.rollbackZipFile,
-      projectFolder: projectFolder || answer.projectFolder,
+      packagesPath: ''
     });
   }
   return {
