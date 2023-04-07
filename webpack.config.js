@@ -4,9 +4,9 @@ const nodeExternals = require("webpack-node-externals");
 const shebangPlugin = require("webpack-shebang-plugin");
 
 module.exports = {
-  entry: "./index.ts",
+  entry: "./packages/index.ts",
   output: {
-    filename: "bundle.js",
+    filename: "index.js",
     path: resolve(__dirname, "dist"),
     library: {
       name: "auto-deploy",
