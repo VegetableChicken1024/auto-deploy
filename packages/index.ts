@@ -7,6 +7,7 @@ import {
   rollback,
   build,
   buildZip,
+  getOption,
 } from "./utils";
 import {
   askConfig,
@@ -23,11 +24,14 @@ const deployrc = getDeployrc();
 
 const main = async () => {
   // 询问是否使用新配置
-  const useNewConfig = await askUseNewConfig();
+  const useNewConfig =
+    deployrc.configPaths.length > 0 ? await askUseNewConfig() : true;
   // 询问配置
   const configs =
     deployrc.configPaths.length > 0 && !useNewConfig
-      ? await askConfig(deployrc.configPaths)
+      ? deployrc.configPaths.length === 1
+        ? [getOption(deployrc.configPaths[0])]
+        : await askConfig(deployrc.configPaths)
       : [await askNewConfig()];
   // 创建ssh连接
   await Promise.allSettled(configs.map((item) => createSSHConnection(item)));
