@@ -1,20 +1,21 @@
 {
     "name": "@bh_huang/auto-deploy",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "用于自动化部署前端项目",
     "author": {
         "name": "huangbh",
         "email": "578092215@qq.com"
     },
     "license": "MIT",
-    "main": "index.ts",
+    "main": "packages/index.ts",
     "bin": {
-        "deploy": "bin/deploy.js",
-        "init": "bin/init.js"
+        "huangbh-deploy": "bin/deploy.js",
+        "huangbh-init": "bin/init.js"
     },
     "scripts": {
         "build": "webpack --mode production",
-        "deploy": "deploy"
+        "deploy": "huangbh-deploy",
+        "init": "huangbh-init"
     },
     "dependencies": {
         "inquirer": "^8.2.5",
