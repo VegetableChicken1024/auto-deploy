@@ -1,8 +1,7 @@
 node_modules
-package-lock.json
-
 dist
-deploy.log
-auto-deploy.exe
-config/*
-packages/*
+package-lock.json
+.deployrc.json
+configs/*
+buildFiles/*
+```
