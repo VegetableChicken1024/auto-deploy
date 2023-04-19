@@ -26,7 +26,7 @@ export const askNewConfig = async (): Promise<IConfig> => {
       },
     },
     {
-      type: "input",
+      type: "password",
       name: "password",
       message: "请输入服务器密码",
       validate: (input: string) => {
