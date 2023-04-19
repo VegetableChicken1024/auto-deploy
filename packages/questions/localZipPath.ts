@@ -29,6 +29,12 @@ export const askLocalZipPath = async (
         return findFiles(folderPath);
       },
       message: "请选择要上传的zip包",
+      validate: (input: string) => {
+        if (!input) {
+          return "请选择要上传的zip包";
+        }
+        return true;
+      },
     },
   ]);
   return answer.localZipPath;
