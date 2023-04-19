@@ -13,13 +13,20 @@ import {
   askLocalFilePath,
   askLocalZipPath,
   askRemoteFileName,
+  askNewConfig,
+  askUseNewConfig,
 } from "./questions";
 
 const deployrc = getDeployrc();
 
 const main = async () => {
+  // 询问是否使用新配置
+  const useNewConfig = await askUseNewConfig();
   // 询问配置
-  const configs = await askConfig(deployrc.configPaths);
+  const configs =
+    deployrc.configPaths.length > 0 && !useNewConfig
+      ? await askConfig(deployrc.configPaths)
+      : [await askNewConfig()];
   // 创建ssh连接
   await Promise.allSettled(configs.map((item) => createSSHConnection(item)));
   // 询问部署或回滚
