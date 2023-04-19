@@ -57,7 +57,9 @@ const main = async () => {
     const localFilePath = deployrc.localFilePath || (await askLocalFilePath());
     // 询问本地zip包路径
     deployrc.buildCommand && (await build(deployrc.buildCommand));
-    const zipName = `${deployrc.zipPrefix}_${new Date().getTime()}.zip`;
+    // 获取时间2022-01-01
+    const date = new Date().toLocaleDateString().replace(/\//g, "-");
+    const zipName = `${deployrc.zipPrefix}_${date}.zip`;
     deployrc.buildPath &&
       (await buildZip(zipName, localFilePath, deployrc.buildPath));
     const { fileName, filePath } = await askLocalZipPath(localFilePath);
