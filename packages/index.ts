@@ -29,9 +29,6 @@ const main = async () => {
     sshMap.size === 1 && !deployrc.remotePath
       ? await askRemotePath()
       : deployrc.remotePath;
-  // 询问本地文件路径
-  const localFilePath = deployrc.localFilePath || (await askLocalFilePath());
-  // 询问本地zip包路径
 
   if (deployOrRollback === "rollback") {
     if (sshMap.size > 1) {
@@ -47,6 +44,9 @@ const main = async () => {
       remoteFileName
     );
   } else {
+    // 询问本地文件路径
+    const localFilePath = deployrc.localFilePath || (await askLocalFilePath());
+    // 询问本地zip包路径
     const { fileName, filePath } = await askLocalZipPath(localFilePath);
     await Promise.allSettled(
       configs.map((item) => {

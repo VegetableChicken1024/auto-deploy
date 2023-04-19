@@ -96,7 +96,7 @@ export const unzip = async (
   remotePath: string,
   fileName: string
 ): Promise<void> => {
-  console.log("正在解压文件，请稍候...", remotePath, fileName);
+  console.log("正在解压文件，请稍候...");
   const command = `unzip -o ${remotePath + "/" + fileName} -d ${remotePath}`;
   await ssh.execCommand(command);
 };
