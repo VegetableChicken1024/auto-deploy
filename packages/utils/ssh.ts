@@ -117,7 +117,7 @@ export const deploy = async (
 ): Promise<void> => {
   console.log("正在部署项目，请稍候...");
   // 上传文件
-  await uploadZip(ssh, localFilePath, remotePath);
+  await uploadZip(ssh, localFilePath, remotePath + "/" + fileName);
   // 解压文件
   await unzip(ssh, remotePath, fileName);
 };

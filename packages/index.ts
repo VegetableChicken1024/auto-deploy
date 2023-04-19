@@ -5,6 +5,8 @@ import {
   sshMap,
   deploy,
   rollback,
+  build,
+  buildZip,
 } from "./utils";
 import {
   askConfig,
@@ -54,6 +56,10 @@ const main = async () => {
     // 询问本地文件路径
     const localFilePath = deployrc.localFilePath || (await askLocalFilePath());
     // 询问本地zip包路径
+    deployrc.buildCommand && (await build(deployrc.buildCommand));
+    const zipName = `${deployrc.zipPrefix}_${new Date().getTime()}.zip`;
+    deployrc.buildPath &&
+      (await buildZip(zipName, localFilePath, deployrc.buildPath));
     const { fileName, filePath } = await askLocalZipPath(localFilePath);
     await Promise.allSettled(
       configs.map((item) => {

@@ -10,6 +10,8 @@ if (!fs.existsSync(deployrcPath)) {
     configPaths: [],
     remotePath: "",
     localFilePath: "",
+    buildCommand: "",
+    buildPath: "",
   };
   fs.writeFileSync(deployrcPath, JSON.stringify(content, null, 2));
 }
