@@ -3,29 +3,34 @@
     "version": "0.0.1",
     "description": "用于自动化部署前端项目",
     "author": {
-      "name": "huangbh",
-      "email": "578092215@qq.com"
+        "name": "huangbh",
+        "email": "578092215@qq.com"
     },
     "license": "MIT",
     "main": "index.ts",
     "bin": {
-      "deploy": "dist/index.js"
+        "deploy": "bin/deploy.js",
+        "init": "bin/init.js"
     },
     "scripts": {
-      "build": "webpack --mode production",
-      "deploy": "deploy"
+        "build": "webpack --mode production",
+        "deploy": "deploy"
     },
     "dependencies": {
+        "inquirer": "^8.2.5",
+        "node-ssh": "^13.1.0",
+        "yaml": "^2.2.1"
     },
     "devDependencies": {
-      "@babel/preset-env": "^7.20.2",
-      "babel-loader": "^9.1.2",
-      "node-loader": "^2.0.0",
-      "ts-loader": "^9.4.2",
-      "typescript": "^5.0.2",
-      "webpack": "^5.76.2",
-      "webpack-cli": "^5.0.1",
-      "webpack-node-externals": "^3.0.0",
-      "webpack-shebang-plugin": "^1.1.8"
+        "@babel/preset-env": "^7.20.2",
+        "@types/inquirer": "^9.0.3",
+        "babel-loader": "^9.1.2",
+        "node-loader": "^2.0.0",
+        "ts-loader": "^9.4.2",
+        "typescript": "^5.0.2",
+        "webpack": "^5.76.2",
+        "webpack-cli": "^5.0.1",
+        "webpack-node-externals": "^3.0.0",
+        "webpack-shebang-plugin": "^1.1.8"
     }
-  }
+}
