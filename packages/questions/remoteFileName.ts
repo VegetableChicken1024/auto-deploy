@@ -16,6 +16,7 @@ export const askRemoteFileName = async (
         // 截取掉前面的remotePath
         return zips.map((zip) => zip.slice(remotePath.length + 1));
       },
+      message: "请选择远程文件名",
     },
   ]);
   return answers.remoteFileName;
