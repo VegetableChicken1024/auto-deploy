@@ -9,7 +9,6 @@ if (!fs.existsSync(deployrcPath)) {
   const content = {
     configPaths: [],
     remotePath: "",
-    localFilePath: "",
     buildCommand: "",
     buildPath: [],
     remoteBakPath: "",

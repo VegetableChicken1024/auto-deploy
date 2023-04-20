@@ -10,13 +10,12 @@ import {
   getOption,
   removeFiles,
   calculateFileNameRemote,
+  deleteLocalFolder,
 } from "./utils";
 import {
   askConfig,
   askDeployOrRollback,
   askRemotePath,
-  askLocalFilePath,
-  askLocalZipPath,
   askRemoteFileName,
   askNewConfig,
   askUseNewConfig,
@@ -73,8 +72,6 @@ const main = async () => {
       deployrc.remoteCommands
     );
   } else {
-    // 询问本地文件路径
-    const localFilePath = deployrc.localFilePath || (await askLocalFilePath());
     // 询问本地zip包路径
     deployrc.buildCommand && (await build(deployrc.buildCommand));
     // 获取时间2022-01-01
@@ -85,8 +82,7 @@ const main = async () => {
       remoteBakPath
     );
     deployrc.buildPath &&
-      (await buildZip(zipName, localFilePath, deployrc.buildPath));
-    const { fileName, filePath } = await askLocalZipPath(localFilePath);
+      (await buildZip(zipName, "./zipTemp", deployrc.buildPath));
     await Promise.allSettled(
       configs.map((item) => {
         const ssh = sshMap.get(item.host)?.ssh;
@@ -95,12 +91,14 @@ const main = async () => {
             ssh,
             remoteBakPath,
             remotePath,
-            filePath,
-            fileName,
+            "./zipTemp/" + zipName,
+            zipName,
             deployrc.remoteCommands
           );
       })
     );
+    // 删除zipTemp文件夹
+    deleteLocalFolder("./zipTemp");
   }
   closeAllSSHConnection();
 };

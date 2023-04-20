@@ -1,7 +1,7 @@
 import AdmZip from "adm-zip";
 import child_process from "child_process";
 import { join } from "path";
-import { statSync, existsSync } from "fs";
+import { statSync, existsSync, mkdirSync, rmSync } from "fs";
 import { NodeSSH } from "node-ssh";
 /**
  * 执行构建命令
@@ -50,6 +50,8 @@ export const buildZip = async (
         zip.addLocalFile(distPath);
       }
     });
+    existsSync(join(process.cwd(), zipPath)) ||
+      mkdirSync(join(process.cwd(), zipPath));
     zip.writeZip(join(zipPath, zipName), (error) => {
       if (error) {
         console.log("打包zip文件失败");
@@ -118,5 +120,17 @@ export const calculateFileNameRemote = async (
     return calculateFileNameRemote(ssh, fileName, zipPath);
   } else {
     return fileName;
+  }
+};
+
+/**
+ * 删除本地文件夹
+ * @param {string} path 文件夹路径
+ * @returns {void}
+ */
+export const deleteLocalFolder = (path: string): void => {
+  const isExist = existsSync(path);
+  if (isExist) {
+    rmSync(path, { recursive: true });
   }
 };
