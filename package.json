@@ -1,6 +1,6 @@
 {
     "name": "@bh_huang/auto-deploy",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "用于自动化部署前端项目",
     "author": {
         "name": "huangbh",
