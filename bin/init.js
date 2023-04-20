@@ -13,6 +13,7 @@ if (!fs.existsSync(deployrcPath)) {
     buildCommand: "",
     buildPath: [],
     remoteBakPath: "",
+    remoteCommands: [],
   };
   fs.writeFileSync(deployrcPath, JSON.stringify(content, null, 2));
 }
