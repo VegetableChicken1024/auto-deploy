@@ -2,6 +2,7 @@ import AdmZip from "adm-zip";
 import child_process from "child_process";
 import { join } from "path";
 import { statSync, existsSync } from "fs";
+import { NodeSSH } from "node-ssh";
 /**
  * 执行构建命令
  * @param {string} command 构建命令
@@ -36,21 +37,6 @@ export const buildZip = async (
   distPath: string[]
 ): Promise<void> => {
   console.log("正在打包zip文件，请稍候...");
-  if (existsSync(join(zipPath, zipName))) {
-    // 传进来的zipName为  dist-2022-01-01.zip
-    // 如果存在则将zipName改为 dist-2022-01-01_1.zip
-    const zipNameArr = zipName.split(".");
-    const zipNameArrLen = zipNameArr.length;
-    const zipNameArrLastNum = Number(
-      zipNameArr[zipNameArrLen - 2].split("_")[1]
-    );
-    zipNameArr[zipNameArrLen - 2] = zipNameArrLastNum
-      ? `${zipNameArr[zipNameArrLen - 2].split("_")[0]}_${
-          zipNameArrLastNum + 1
-        }`
-      : `${zipNameArr[zipNameArrLen - 2]}_1`;
-    zipName = zipNameArr.join(".");
-  }
   const zip = new AdmZip();
   return new Promise((resolve, reject) => {
     distPath.forEach((item) => {
@@ -75,4 +61,62 @@ export const buildZip = async (
       }
     });
   });
+};
+
+/**
+ * 计算文件名(本地)
+ * @param {string} fileName 文件名
+ * @param {string} zipPath zip文件路径
+ * @returns {string} 文件名
+ */
+export const calculateFileNameLocal = (
+  fileName: string,
+  zipPath: string
+): string => {
+  const fileIsExist = existsSync(join(zipPath, fileName));
+  if (fileIsExist) {
+    const reg = /_\d+\.zip$/;
+    const isExist = reg.test(fileName);
+    if (isExist) {
+      const num = Number(
+        fileName.match(reg)?.[0].replace(/_/g, "").replace(/\.zip/g, "")
+      );
+      fileName = fileName.replace(reg, `_${num + 1}.zip`);
+    } else {
+      fileName = fileName.replace(/\.zip/g, "_1.zip");
+    }
+    return calculateFileNameLocal(fileName, zipPath);
+  } else {
+    return fileName;
+  }
+};
+
+/**
+ * 计算文件名(远程)
+ * @param {NodeSSH} ssh ssh对象
+ * @param {string} fileName 文件名
+ * @param {string} zipPath zip文件路径
+ * @returns {string} 文件名
+ */
+export const calculateFileNameRemote = async (
+  ssh: NodeSSH,
+  fileName: string,
+  zipPath: string
+): Promise<string> => {
+  const { code } = await ssh.execCommand(`ls ${zipPath}/${fileName}`);
+  if (code === 0) {
+    const reg = /_\d+\.zip$/;
+    const isExist = reg.test(fileName);
+    if (isExist) {
+      const num = Number(
+        fileName.match(reg)?.[0].replace(/_/g, "").replace(/\.zip/g, "")
+      );
+      fileName = fileName.replace(reg, `_${num + 1}.zip`);
+    } else {
+      fileName = fileName.replace(/\.zip/g, "_1.zip");
+    }
+    return calculateFileNameRemote(ssh, fileName, zipPath);
+  } else {
+    return fileName;
+  }
 };

@@ -8,6 +8,8 @@ import {
   build,
   buildZip,
   getOption,
+  removeFiles,
+  calculateFileNameRemote,
 } from "./utils";
 import {
   askConfig,
@@ -45,6 +47,16 @@ const main = async () => {
       : deployrc.remotePath;
   // 询问备份路径
   const remoteBakPath = deployrc.remoteBakPath || (await askRemoteBakPath());
+  // 部署或者回滚之前删除远程服务器文件
+  const paths = deployrc.buildPath.map((item) => {
+    return remotePath + "/" + item;
+  });
+  await Promise.allSettled(
+    configs.map((item) => {
+      const ssh = sshMap.get(item.host)?.ssh;
+      if (ssh) return removeFiles(ssh, paths);
+    })
+  );
   if (deployOrRollback === "rollback") {
     if (sshMap.size > 1) {
       console.log("回滚仅支持单配置");
@@ -67,7 +79,11 @@ const main = async () => {
     deployrc.buildCommand && (await build(deployrc.buildCommand));
     // 获取时间2022-01-01
     const date = new Date().toLocaleDateString().replace(/\//g, "-");
-    const zipName = `${deployrc.zipPrefix}_${date}.zip`;
+    const zipName = await calculateFileNameRemote(
+      sshMap.values().next().value.ssh,
+      `${deployrc.zipPrefix}_${date}.zip`,
+      remoteBakPath
+    );
     deployrc.buildPath &&
       (await buildZip(zipName, localFilePath, deployrc.buildPath));
     const { fileName, filePath } = await askLocalZipPath(localFilePath);
