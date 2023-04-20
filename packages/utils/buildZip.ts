@@ -32,12 +32,14 @@ export const build = async (command: string): Promise<void> => {
 export const buildZip = async (
   zipName: string,
   zipPath: string,
-  distPath: string
+  distPath: string[]
 ): Promise<void> => {
   console.log("正在打包zip文件，请稍候...");
   const zip = new AdmZip();
   return new Promise((resolve, reject) => {
-    zip.addLocalFolder(distPath);
+    distPath.forEach((item) => {
+      zip.addLocalFolder(item);
+    });
     zip.writeZip(join(zipPath, zipName), (error) => {
       if (error) {
         console.log("打包zip文件失败");
