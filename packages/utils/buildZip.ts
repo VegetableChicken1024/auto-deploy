@@ -1,6 +1,7 @@
 import AdmZip from "adm-zip";
 import child_process from "child_process";
 import { join } from "path";
+import { statSync } from "fs";
 /**
  * 执行构建命令
  * @param {string} command 构建命令
@@ -38,7 +39,14 @@ export const buildZip = async (
   const zip = new AdmZip();
   return new Promise((resolve, reject) => {
     distPath.forEach((item) => {
-      zip.addLocalFolder(item);
+      const distPath = join(process.cwd(), item);
+      if (statSync(distPath).isDirectory()) {
+        // 文件夹
+        zip.addLocalFolder(distPath, item);
+      } else {
+        // 文件
+        zip.addLocalFile(distPath, item);
+      }
     });
     zip.writeZip(join(zipPath, zipName), (error) => {
       if (error) {
