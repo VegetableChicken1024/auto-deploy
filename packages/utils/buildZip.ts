@@ -41,11 +41,12 @@ export const buildZip = async (
     distPath.forEach((item) => {
       const distPath = join(process.cwd(), item);
       if (statSync(distPath).isDirectory()) {
-        // 文件夹
-        zip.addLocalFolder(distPath, item);
+        // 文件夹 判断item最后一位是否为/
+        const needDir = item[item.length - 1] === "/";
+        zip.addLocalFolder(distPath, needDir ? item : "");
       } else {
         // 文件
-        zip.addLocalFile(distPath, item);
+        zip.addLocalFile(distPath);
       }
     });
     zip.writeZip(join(zipPath, zipName), (error) => {
