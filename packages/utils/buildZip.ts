@@ -1,7 +1,7 @@
 import AdmZip from "adm-zip";
 import child_process from "child_process";
 import { join } from "path";
-import { statSync } from "fs";
+import { statSync, existsSync } from "fs";
 /**
  * 执行构建命令
  * @param {string} command 构建命令
@@ -36,6 +36,21 @@ export const buildZip = async (
   distPath: string[]
 ): Promise<void> => {
   console.log("正在打包zip文件，请稍候...");
+  if (existsSync(join(zipPath, zipName))) {
+    // 传进来的zipName为  dist-2022-01-01.zip
+    // 如果存在则将zipName改为 dist-2022-01-01_1.zip
+    const zipNameArr = zipName.split(".");
+    const zipNameArrLen = zipNameArr.length;
+    const zipNameArrLastNum = Number(
+      zipNameArr[zipNameArrLen - 2].split("_")[1]
+    );
+    zipNameArr[zipNameArrLen - 2] = zipNameArrLastNum
+      ? `${zipNameArr[zipNameArrLen - 2].split("_")[0]}_${
+          zipNameArrLastNum + 1
+        }`
+      : `${zipNameArr[zipNameArrLen - 2]}_1`;
+    zipName = zipNameArr.join(".");
+  }
   const zip = new AdmZip();
   return new Promise((resolve, reject) => {
     distPath.forEach((item) => {
