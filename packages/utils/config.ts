@@ -55,8 +55,20 @@ export const saveOption = (optionPath: string, option: IConfig): void => {
   // 保存配置信息
   writeFileSync(`${configPath}/${option.host}.yaml`, stringify(option));
   // 保存配置信息
+  saveDeployrc("configPaths", `${optionPath}/${option.host}.yaml`);
+};
+
+/**
+ * 保存deployrc配置
+ * @param key 配置项
+ * @param value 配置值
+ * @returns {void}
+ */
+export const saveDeployrc = (key: keyof IDeployrc, value: string): void => {
   const deployrc = getDeployrc();
-  deployrc.configPaths.push(`${optionPath}/${option.host}.yaml`);
+  key === "configPaths" || key === "buildPath"
+    ? deployrc[key].push(value)
+    : (deployrc[key] = value);
   writeFileSync(
     join(process.cwd(), ".deployrc.json"),
     JSON.stringify(deployrc, null, 2)

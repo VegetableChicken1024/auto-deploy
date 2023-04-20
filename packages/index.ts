@@ -18,6 +18,7 @@ import {
   askRemoteFileName,
   askNewConfig,
   askUseNewConfig,
+  askRemoteBakPath,
 } from "./questions";
 
 const deployrc = getDeployrc();
@@ -42,17 +43,19 @@ const main = async () => {
     sshMap.size === 1 && !deployrc.remotePath
       ? await askRemotePath()
       : deployrc.remotePath;
-
+  // 询问备份路径
+  const remoteBakPath = deployrc.remoteBakPath || (await askRemoteBakPath());
   if (deployOrRollback === "rollback") {
     if (sshMap.size > 1) {
       console.log("回滚仅支持单配置");
       return;
     }
     // 询问远程文件名
-    const remoteFileName = await askRemoteFileName(remotePath);
+    const remoteFileName = await askRemoteFileName(remoteBakPath);
     // 回滚
     await rollback(
       sshMap.values().next().value.ssh,
+      remoteBakPath,
       remotePath,
       remoteFileName
     );
@@ -70,11 +73,16 @@ const main = async () => {
     await Promise.allSettled(
       configs.map((item) => {
         const ssh = sshMap.get(item.host)?.ssh;
-        if (ssh) return deploy(ssh, remotePath, filePath, fileName);
+        if (ssh)
+          return deploy(ssh, remoteBakPath, remotePath, filePath, fileName);
       })
     );
   }
   closeAllSSHConnection();
 };
 
-main();
+try {
+  main();
+} catch (error) {
+  closeAllSSHConnection();
+}

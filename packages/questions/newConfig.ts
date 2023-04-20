@@ -1,8 +1,5 @@
 import inquirer from "inquirer";
 import { IConfig } from "../types/config";
-import { writeFileSync, existsSync, mkdirSync, readFileSync } from "fs";
-import { join } from "path";
-import { stringify } from "yaml";
 import { saveOption } from "../utils";
 const prompt = inquirer.createPromptModule();
 export const askNewConfig = async (): Promise<IConfig> => {

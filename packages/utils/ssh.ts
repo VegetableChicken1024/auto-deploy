@@ -72,38 +72,41 @@ export const findDirs = async (
  * 将本地文件压缩包上传到服务器
  * @param {NodeSSH} ssh ssh实例
  * @param {string} localZipPath 本地文件压缩包路径
- * @param {string} remotePath 服务器文件压缩包路径
+ * @param {string} remoteBakPath 服务器文件压缩包路径
  * @returns {void}
  */
 export const uploadZip = async (
   ssh: NodeSSH,
   localZipPath: string,
-  remotePath: string
+  remoteBakPath: string
 ): Promise<void> => {
   console.log("正在上传文件，请稍候...");
-  await ssh.putFile(localZipPath, remotePath);
+  await ssh.putFile(localZipPath, remoteBakPath);
 };
 
 /**
  * 远程解压文件
  * @param {NodeSSH} ssh ssh实例
+ * @param {string} remoteBakPath 远程备份文件夹路径
  * @param {string} remotePath 远程文件压缩包路径
  * @param {string} fileName 文件名
  * @returns {void}
  */
 export const unzip = async (
   ssh: NodeSSH,
+  remoteBakPath: string,
   remotePath: string,
   fileName: string
 ): Promise<void> => {
   console.log("正在解压文件，请稍候...");
-  const command = `unzip -o ${remotePath + "/" + fileName} -d ${remotePath}`;
+  const command = `unzip -o ${remoteBakPath + "/" + fileName} -d ${remotePath}`;
   await ssh.execCommand(command);
 };
 
 /**
  * 部署项目
  * @param {NodeSSH} ssh ssh实例
+ * @param {string} remoteBakPath 远程备份文件夹路径
  * @param {string} remotePath 远程文件压缩包路径
  * @param {string} localFilePath 本地文件路径
  * @param {string} fileName 文件名
@@ -111,32 +114,35 @@ export const unzip = async (
  */
 export const deploy = async (
   ssh: NodeSSH,
+  remoteBakPath: string,
   remotePath: string,
   localFilePath: string,
   fileName: string
 ): Promise<void> => {
   console.log("正在部署项目，请稍候...");
   // 上传文件
-  await uploadZip(ssh, localFilePath, remotePath + "/" + fileName);
+  await uploadZip(ssh, localFilePath, remoteBakPath + "/" + fileName);
   // 解压文件
-  await unzip(ssh, remotePath, fileName);
+  await unzip(ssh, remoteBakPath, remotePath, fileName);
 };
 
 /**
  * 回滚项目
  * @param {NodeSSH} ssh ssh实例
+ * @param {string} remoteBakPath 远程备份文件夹路径
  * @param {string} remotePath 远程文件压缩包路径
  * @param {string} fileName 文件名
  * @returns {void}
  */
 export const rollback = async (
   ssh: NodeSSH,
+  remoteBakPath: string,
   remotePath: string,
   fileName: string
 ): Promise<void> => {
   console.log("正在回滚项目，请稍候...");
   // 解压文件
-  await unzip(ssh, remotePath, fileName);
+  await unzip(ssh, remoteBakPath, remotePath, fileName);
 };
 
 /**

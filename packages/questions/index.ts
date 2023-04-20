@@ -6,3 +6,4 @@ export * from "./localZipPath";
 export * from "./remoteFileName";
 export * from "./newConfig";
 export * from "./useNewConfig";
+export * from "./remoteBakPath";
