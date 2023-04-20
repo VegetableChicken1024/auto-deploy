@@ -66,8 +66,8 @@ export const saveOption = (optionPath: string, option: IConfig): void => {
  */
 export const saveDeployrc = (key: keyof IDeployrc, value: string): void => {
   const deployrc = getDeployrc();
-  key === "configPaths" || key === "buildPath"
-    ? deployrc[key].push(value)
+  key === "configPaths" || key === "buildPath" || key === "remoteCommands"
+    ? deployrc[key].includes(value) || deployrc[key].push(value)
     : (deployrc[key] = value);
   writeFileSync(
     join(process.cwd(), ".deployrc.json"),
