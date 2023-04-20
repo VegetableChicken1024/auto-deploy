@@ -195,3 +195,19 @@ export const execCommands = async (
   const command = commands.join(" && ");
   await ssh.execCommand(command);
 };
+
+/**
+ * 删除远程服务器文件或文件夹
+ * @param {NodeSSH} ssh ssh实例
+ * @param {Array} paths 文件或文件夹路径数组
+ * @returns {void}
+ */
+export const removeFiles = async (
+  ssh: NodeSSH,
+  paths: string[]
+): Promise<void> => {
+  if (!paths.length) return;
+  console.log("正在删除文件，请稍候...");
+  const command = `rm -rf ${paths.join(" ")}`;
+  await ssh.execCommand(command);
+};
