@@ -57,7 +57,8 @@ const main = async () => {
       sshMap.values().next().value.ssh,
       remoteBakPath,
       remotePath,
-      remoteFileName
+      remoteFileName,
+      deployrc.remoteCommands
     );
   } else {
     // 询问本地文件路径
@@ -74,7 +75,14 @@ const main = async () => {
       configs.map((item) => {
         const ssh = sshMap.get(item.host)?.ssh;
         if (ssh)
-          return deploy(ssh, remoteBakPath, remotePath, filePath, fileName);
+          return deploy(
+            ssh,
+            remoteBakPath,
+            remotePath,
+            filePath,
+            fileName,
+            deployrc.remoteCommands
+          );
       })
     );
   }

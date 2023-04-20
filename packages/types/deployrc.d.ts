@@ -6,4 +6,5 @@ export interface IDeployrc {
   buildPath: string[]; // 构建后的文件路径
   zipPrefix: string; // zip文件前缀
   remoteBakPath: string; // 远程备份路径
+  remoteCommands: string[]; // 远程命令
 }

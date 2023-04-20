@@ -110,6 +110,7 @@ export const unzip = async (
  * @param {string} remotePath 远程文件压缩包路径
  * @param {string} localFilePath 本地文件路径
  * @param {string} fileName 文件名
+ * @param {Array} commands 远程命令
  * @returns {void}
  */
 export const deploy = async (
@@ -117,13 +118,21 @@ export const deploy = async (
   remoteBakPath: string,
   remotePath: string,
   localFilePath: string,
-  fileName: string
+  fileName: string,
+  commands: string[]
 ): Promise<void> => {
-  console.log("正在部署项目，请稍候...");
-  // 上传文件
-  await uploadZip(ssh, localFilePath, remoteBakPath + "/" + fileName);
-  // 解压文件
-  await unzip(ssh, remoteBakPath, remotePath, fileName);
+  try {
+    console.log("正在部署项目，请稍候...");
+    // 上传文件
+    await uploadZip(ssh, localFilePath, remoteBakPath + "/" + fileName);
+    // 解压文件
+    await unzip(ssh, remoteBakPath, remotePath, fileName);
+    // 执行命令
+    await execCommands(ssh, commands);
+  } catch (error) {
+    console.log("部署失败：");
+    console.log(error);
+  }
 };
 
 /**
@@ -132,17 +141,26 @@ export const deploy = async (
  * @param {string} remoteBakPath 远程备份文件夹路径
  * @param {string} remotePath 远程文件压缩包路径
  * @param {string} fileName 文件名
+ * @param {Array} commands 远程命令
  * @returns {void}
  */
 export const rollback = async (
   ssh: NodeSSH,
   remoteBakPath: string,
   remotePath: string,
-  fileName: string
+  fileName: string,
+  commands: string[]
 ): Promise<void> => {
-  console.log("正在回滚项目，请稍候...");
-  // 解压文件
-  await unzip(ssh, remoteBakPath, remotePath, fileName);
+  try {
+    console.log("正在回滚项目，请稍候...");
+    // 解压文件
+    await unzip(ssh, remoteBakPath, remotePath, fileName);
+    // 执行命令
+    await execCommands(ssh, commands);
+  } catch (error) {
+    console.log("回滚失败：");
+    console.log(error);
+  }
 };
 
 /**
@@ -160,4 +178,20 @@ export const findZips = async (
   const { stdout } = await ssh.execCommand(command);
   if (!stdout) return [];
   return stdout.split("\n").filter((folder) => folder);
+};
+
+/**
+ * 远程服务器执行命令
+ * @param {NodeSSH} ssh ssh实例
+ * @param {Array} commands 命令数组
+ * @returns {void}
+ */
+export const execCommands = async (
+  ssh: NodeSSH,
+  commands: string[]
+): Promise<void> => {
+  if (!commands.length) return;
+  console.log("正在执行命令，请稍候...");
+  const command = commands.join(" && ");
+  await ssh.execCommand(command);
 };
