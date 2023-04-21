@@ -1,6 +1,10 @@
 import { NodeSSH } from "node-ssh";
 import { IConfig } from "../types/config";
 import { configMap } from "./config";
+import {
+  getZipFolderOrFileNameLocal,
+  getZipFolderOrFileNameRemote,
+} from "./buildZip";
 const optionKeys = ["host", "port", "username", "password"];
 // 保存ssh连接实例
 export const sshMap = new Map<string, { ssh: NodeSSH }>();
@@ -125,6 +129,14 @@ export const deploy = async (
     console.log("正在部署项目，请稍候...");
     // 上传文件
     await uploadZip(ssh, localFilePath, remoteBakPath + "/" + fileName);
+    // 删除旧文件
+    // 获取压缩包内的文件或文件夹名
+    const zipPath = localFilePath.split("/").slice(0, -1).join("/");
+    const zipFolderOrFileName = getZipFolderOrFileNameLocal(
+      zipPath,
+      fileName
+    ).map((item) => remotePath + "/" + item);
+    await removeFiles(ssh, zipFolderOrFileName);
     // 解压文件
     await unzip(ssh, remoteBakPath, remotePath, fileName);
     // 执行命令
@@ -153,6 +165,12 @@ export const rollback = async (
 ): Promise<void> => {
   try {
     console.log("正在回滚项目，请稍候...");
+    // 删除旧文件
+    // 获取压缩包内的文件或文件夹名
+    const zipFolderOrFileName = (
+      await getZipFolderOrFileNameRemote(ssh, remoteBakPath, fileName)
+    ).map((item) => remotePath + "/" + item);
+    await removeFiles(ssh, zipFolderOrFileName);
     // 解压文件
     await unzip(ssh, remoteBakPath, remotePath, fileName);
     // 执行命令

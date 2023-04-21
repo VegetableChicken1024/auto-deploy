@@ -8,7 +8,6 @@ import {
   build,
   buildZip,
   getOption,
-  removeFiles,
   calculateFileNameRemote,
   deleteLocalFolder,
 } from "./utils";
@@ -50,12 +49,6 @@ const main = async () => {
   const paths = deployrc.buildPath.map((item) => {
     return remotePath + "/" + item;
   });
-  await Promise.allSettled(
-    configs.map((item) => {
-      const ssh = sshMap.get(item.host)?.ssh;
-      if (ssh) return removeFiles(ssh, paths);
-    })
-  );
   if (deployOrRollback === "rollback") {
     if (sshMap.size > 1) {
       console.log("回滚仅支持单配置");

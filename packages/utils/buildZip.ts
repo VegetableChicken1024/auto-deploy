@@ -134,3 +134,48 @@ export const deleteLocalFolder = (path: string): void => {
     rmSync(path, { recursive: true });
   }
 };
+
+/**
+ * 获取zip内文件夹或文件名(本地)
+ * @param {string} zipPath zip文件路径
+ * @param {string} zipName zip文件名
+ * @returns {string[]} 文件夹或文件名
+ */
+export const getZipFolderOrFileNameLocal = (
+  zipPath: string,
+  zipName: string
+): string[] => {
+  console.log("正在获取zip内文件夹或文件名，请稍候...");
+  // 只要zip内第一层文件夹或文件名
+  const zip = new AdmZip(join(zipPath, zipName));
+  const zipEntries = zip.getEntries();
+  const folderOrFileName: string[] = [];
+  zipEntries.forEach((item) => {
+    const name = item.entryName.split("/")[0];
+    if (!folderOrFileName.includes(name)) {
+      folderOrFileName.push(name);
+    }
+  });
+  return folderOrFileName;
+};
+
+/**
+ * 获取zip内文件夹或文件名(远程)
+ * @param {NodeSSH} ssh ssh对象
+ * @param {string} zipPath zip文件路径
+ * @param {string} zipName zip文件名
+ * @returns {string[]} 文件夹或文件名
+ */
+export const getZipFolderOrFileNameRemote = async (
+  ssh: NodeSSH,
+  zipPath: string,
+  zipName: string
+): Promise<string[]> => {
+  console.log("正在获取zip内文件夹或文件名，请稍候...");
+  // 只要zip内第一层文件夹或文件名
+  const command = `unzip -l ${zipPath}/${zipName} | awk '{print $4}' | sed '1d' | awk -F '/' '{print $1}' | uniq`;
+  const { stdout } = await ssh.execCommand(command);
+  return stdout
+    .split("\n")
+    .filter((item) => item !== "Name" && item !== "----");
+};
